@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html ng-app="appName" lang="en" ng-controller="mainCtrl" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="utf-8" />
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+	<title>{{displayData.head.title}}</title>
+
+	<meta description="" />
+
+	<meta author="Yotan Hassin" />
+
+	<link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.css" />
+	<!-- <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css" /> -->
+
+	<link rel="stylesheet" type="text/css" href="../stylesheets/signin.css" />
+
+	<meta name="theme-color" content="#7952b3">
+
+	<style>
+		.bd-placeholder-img {
+			font-size: 1.125rem;
+			text-anchor: middle;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			user-select: none;
+		}
+
+		@media (min-width: 768px) {
+			.bd-placeholder-img-lg {
+				font-size: 3.5rem;
+			}
+		}
+	</style>
+
+</head>
+
+<body>
+	<app></app>
+
+
+	<!-- scripts -->
+	<script type="text/javascript" src="../scripts/jquery-2.1.1.js"></script>
+
+	<script type="text/javascript" src="../scripts/angular.js"></script>
+
+	<script type="text/javascript" src="../scripts/angular-route.min.js"></script>
+
+	<script type="text/javascript" src="../scripts/angular-animate.min.js"></script>
+
+	<script type="text/javascript" src="../scripts/bootstrap.bundle.min.js"></script>
+
+	<!-- controllers -->
+	<script type="text/javascript" src="../controllers/mainCtrl.js"></script>
+
+</body>
+
+
+<script type="text/ng-template" id="app.html">
+	<h3>{{$root.displayData.head.title}} app works</h3>
+	<div ng-view></div>
+
+</script>
+
+<script type="text/ng-template" id="login.html">
+	<!-- <a href="#!/books" target="_blank">Book List</a>
+	<a href="#!/books/3" target="_blank">Book Item</a> -->
+
+	<section class="login-body text-center">
+		<main class="form-center form-login">
+			<form>
+				<img class="mb-4" src="../assets/bootstrap/bootstrap-logo.svg" alt="" width="72" height="57">
+				<h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+				<div class="form-floating">
+					<input type="text" class="form-control" id="floatingInput" ng-model="emailAddress"
+						placeholder="name@example.com">
+					<label for="floatingInput">Email address</label>
+				</div>
+				<div class="form-floating">
+					<input type="password" class="form-control" id="floatingPassword" ng-model="password"
+						placeholder="Password">
+					<label for="floatingPassword">Password</label>
+				</div>
+
+				<div class="checkbox mb-3">
+					<label>
+						<input type="checkbox" ng-model="rememberMe"> Remember me
+					</label>
+				</div>
+				<button class="w-100 btn btn-lg btn-primary" ng-click="signIn()" type="button">Sign in</button>
+			</form>
+		</main>
+
+
+
+	</section>
+</script>
+
+<script type="text/ng-template" id="bookList.html">
+	<!-- 
+intitle: מחזירה תוצאות שבהן נמצאה טקסט אחרי מילת המפתח הזו בכותרת.
+inauthor: מחזירה תוצאות שבהן נמצא הטקסט שמופיע בעקבות מילת המפתח במחבר.
+inpublisher: מחזירה תוצאות שבהן נמצא הטקסט אחרי מילת המפתח הזו בבעל האפליקציה.
+subject: מחזירה תוצאות שבהן הטקסט שמופיע אחרי מילת המפתח הזו מופיע ברשימת הקטגוריות של הנפח.
+isbn: מחזירה תוצאות שבהן הטקסט שמופיע אחרי מילת המפתח הזו הוא מספר ה-ISBN.
+lccn: מחזירה תוצאות שבהן הטקסט שמופיע אחרי מילת המפתח הזו הוא מספר הבקרה של ספריית הקונגרס.
+oclc: מחזירה תוצאות שבהן הטקסט שמופיע אחרי מילת המפתח הזו הוא המספר של ספריית המחשב המקוונת. -->
+	<h3>bookList works</h3>
+	<section class="form-center form-books text-center">
+		<form>
+			<h1 class="h3 mb-3 fw-normal">Please fill book list query info</h1>
+			<button class="w-100 btn btn-lg btn-info mb-3" ng-click="fillExampleParams()" type="button">Fill example params</button>
+
+			<div class="row row-cols-3">
+				<div class="form-floating col">
+					<input type="text" placeholder="" class="form-control" id="intitle" ng-model="intitle">
+					<label class="ms-2" for="intitle">In Title</label>
+					<p class="mt-1 mb-3 text-muted">מחזירה תוצאות שבהן נמצאה טקסט אחרי מילת המפתח הזו בכותרת</p>
+
+				</div>
+
+
+				<div class="form-floating col">
+					<input type="text" placeholder="" class="form-control" id="inauthor" ng-model="inauthor">
+					<label class="ms-2" for="inauthor">In Author</label>
+					<p class="mt-1 mb-3 text-muted">מחזירה תוצאות שבהן נמצא הטקסט שמופיע בעקבות מילת המפתח במחבר</p>
+
+				</div>
+
+
+				<div class="form-floating col">
+					<input type="text" placeholder="" class="form-control" id="inpublisher" ng-model="inpublisher">
+					<label class="ms-2" for="inpublisher">In Publisher</label>
+					<p class="mt-1 mb-3 text-muted">מחזירה תוצאות שבהן נמצא הטקסט אחרי מילת המפתח הזו בבעל האפליקציה</p>
+
+				</div>
+
+
+				<div class="form-floating col">
+					<input type="text" placeholder="" class="form-control" id="subject" ng-model="subject">
+					<label class="ms-2" for="subject">In Subject</label>
+					<p class="mt-1 mb-3 text-muted">מחזירה תוצאות שבהן הטקסט שמופיע אחרי מילת המפתח הזו מופיע ברשימת הקטגוריות של הנפח</p>
+
+				</div>
+
+
+				<div class="form-floating col">
+					<input type="text" placeholder="" class="form-control" id="isbn" ng-model="isbn">
+					<label class="ms-2" for="isbn" class="text-uppercase">isbn</label>
+					<p class="mt-1 mb-3 text-muted rtl">מחזירה תוצאות שבהן הטקסט שמופיע אחרי מילת המפתח הזו הוא מספר ה-ISBN</p>
+
+				</div>
+
+
+				<div class="form-floating col">
+					<input type="text" placeholder="" class="form-control" id="lccn" ng-model="lccn">
+					<label class="ms-2" for="lccn" class="text-uppercase">lccn</label>
+					<p class="mt-1 mb-3 text-muted">מחזירה תוצאות שבהן הטקסט שמופיע אחרי מילת המפתח הזו הוא מספר הבקרה של ספריית הקונגרס</p>
+
+				</div>
+
+
+				<div class="form-floating col">
+					<input type="text" placeholder="" class="form-control" id="oclc" ng-model="oclc">
+					<label class="ms-2" for="oclc" class="text-uppercase">oclc</label>
+					<p class="mt-1 mb-3 text-muted">מחזירה תוצאות שבהן הטקסט שמופיע אחרי מילת המפתח הזו הוא המספר של ספריית המחשב המקוונת</p>
+
+				</div>
+
+			</div>
+
+			<button class="w-100 btn btn-lg btn-primary" ng-click="sendQuery()" type="button">Send query</button>
+			<button class="w-100 btn btn-lg btn-primary" ng-click="clearParams()" type="button">Clear params</button>
+
+		</form>
+	</section>
+
+	<book-list-display items="items"></book-list-display>
+
+	<nav ng-if="itemsPagination && itemsPagination.length > 0" aria-label="Page navigation">
+		<ul class="pagination">
+		  <li class="page-item"><a class="page-link" ng-click="moveToPage(item)" ng-repeat="(index, item) in itemsPagination" href="#">{{item + 1}}</a></li>
+		  <!-- <li class="page-item"><a class="page-link" href="#">2</a></li> -->
+		</ul>
+	  </nav>
+
+</script>
+
+<script type="text/ng-template" id="bookListDisplay.html">
+	<h3>Book List Display works: {{items && items.length > 0 ? items.length: 'no items to display'}}</h3>
+	<button class="w-100 btn btn-lg btn-info mb-3" ng-click="fillExampleData()" type="button">Fill example data</button>
+	<div class="album py-5 bg-light">
+		<div class="container">
+	
+		  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+			<div class="col" ng-repeat="(index, item) in items">
+			  <div class="card shadow-sm">
+	
+				<div class="card-body">
+				  <p class="card-text">
+
+				  </p>
+				  <ul class="list-unstyled mt-3 mb-4">
+					
+					<li><span class="text-capitalize">title: </span>{{item.volumeInfo.title}}</li>
+					<!-- <li><span class="text-capitalize">authors: </span>{{item.volumeInfo.authors| json}}</li> -->
+					<li><span class="text-capitalize">authors: </span><span ng-repeat="(indexAuthor, author) in item.volumeInfo.authors" class="text-capitalize me-3">{{author}}</span></li>
+					<li><span class="text-capitalize">publishedDate: </span>{{item.volumeInfo.publishedDate}}</li>
+					<li><span class="text-capitalize">pageCount: </span>{{item.volumeInfo.pageCount}}</li>
+					
+				  </ul>
+				  <div class="d-flex justify-content-between align-items-center">
+					<div class="btn-group">
+					  <button type="button" ng-click="viewItem(item.id)" class="btn btn-sm btn-outline-secondary">View</button>
+					  <button type="button" ng-click="changeIsFavorite(item.id)" class="btn btn-sm {{isFavorite(item.id) ? 'btn-success': 'btn-outline-success'}}">Is Favorite</button>
+					</div>
+					<small class="text-muted">id: {{item.id}}</small>
+				  </div>
+				</div>
+			  </div>
+			</div>
+	
+		  </div>
+		</div>
+	  </div>
+
+
+</script>
+
+
+<script type="text/ng-template" id="bookItem.html">
+	<h3>Book Item works: {{bookId}}</h3>
+	<div class="shadow-sm">
+	
+		<div class="card-body">
+		  <p class="card-text">
+
+		  </p>
+		  <ul class="list-unstyled mt-3 mb-4">
+			
+			<li><span class="text-capitalize">title: </span>{{item.volumeInfo.title}}</li>
+			<!-- <li><span class="text-capitalize">authors: </span>{{item.volumeInfo.authors| json}}</li> -->
+			<li><span class="text-capitalize">authors: </span><span ng-repeat="(indexAuthor, author) in item.volumeInfo.authors" class="text-capitalize me-3">{{author}}</span></li>
+			<li><span class="text-capitalize">categories: </span><span ng-repeat="(indexCategory, category) in item.volumeInfo.categories" class="text-capitalize me-3">{{category}}</span></li>
+			<li><span class="text-capitalize">publishedDate: </span>{{item.volumeInfo.publishedDate}}</li>
+			<li><span class="text-capitalize">pageCount: </span>{{item.volumeInfo.pageCount}}</li>
+			
+		  </ul>
+		  <div class="d-flex justify-content-between align-items-center">
+			<p></p>
+			<small class="text-muted">id: {{item.id}}</small>
+		  </div>
+		</div>
+	  </div>
+
+</script>
+
+
+</html>

@@ -1,0 +1,1298 @@
+﻿<!DOCTYPE html>
+<html ng-app="appName" lang="en" ng-controller="dataCtrl" xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<meta charset="utf-8" />
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+<title>{{displayData.head.title}}</title>
+
+<meta description="" />
+
+<meta author="Yotan Hassin" />
+
+<link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.css" />
+
+<!-- <link rel="stylesheet" type="text/css" href="../stylesheets/bootstrap.min.css" /> -->
+</head>
+
+<body ng-controller="mainCtrl" >
+<app></app>
+
+<!-- scripts -->
+<script type="text/javascript" src="../scripts/jquery-2.1.1.js" ></script>
+
+<script type="text/javascript" src="../scripts/angular.js" ></script>
+
+<script type="text/javascript" src="../scripts/angular-animate.min.js" ></script>
+
+<script type="text/javascript" src="../scripts/bootstrap.bundle.min.js" ></script>
+
+<!-- controllers -->
+<script type="text/javascript" src="../controllers/mainCtrl.js" ></script>
+
+<script type="text/javascript" src="../controllers/directives/dataObjects.js" ></script>
+
+<script type="text/javascript" src="../controllers/directives/directive_helper.js" ></script>
+
+<!-- controllers - modules -->
+<script type="text/javascript" src="../controllers/modules/core.js" ></script>
+
+<script type="text/javascript" src="../controllers/modules/myCanvas.js" ></script>
+
+<script type="text/javascript" src="../controllers/modules/storage.js" ></script>
+
+<script type="text/javascript" src="../controllers/modules/designer.js" ></script>
+
+<script type="text/javascript" src="../controllers/modules/printer.js" ></script>
+
+<script type="text/javascript" src="../controllers/modules/bootstrapUI.js" ></script>
+
+<script type="text/javascript" src="../controllers/modules/jsonEditor.js" ></script>
+
+<div dynamic="getScriptTag()" ></div>
+</body>
+
+<script type="text/ng-template" id="app.html" >
+<my-route
+	brand-href="displayData.body.navbar.navbar_brand.href"
+	brand-text="displayData.body.navbar.navbar_brand.text"
+	home-click="homeClick"
+	fieldset-if-arr="fieldsetIfArr"></my-route></script>
+
+
+<script type="text/ng-template" id="btnInfo.html" >
+<!-- ng-class="isOn ? 'btn-info' : 'btn-info-outline'" -->
+<div class="btn {{btnClass()}}"
+	role="button"
+	ng-click="checkboxChange($event, isOn)">
+
+	<div class="modal_holder">
+	</div>
+</div>
+</script>
+
+
+
+<script type="text/ng-template" id="multiSelect.html" >
+<!-- 
+	input.box-shadow-inset _ border-radius _ cursor-pointer
+	ng-if="!isAlwaysShow" -->
+<input readonly="readonly"
+	ng-if="!isAlwaysShow"
+	class="box-shadow-inset border-radius cursor-pointer"
+	type="text" ng-click="openDropDown($event)"
+	value="{{getPlaceholder(lableText)}}" />
+
+<!-- div.list-popup -->
+<div class="list-popup"
+	ng-if="isAlwaysShow || isShowOptions">
+	<!-- checkboxs -->
+	<div class="{{ editObject ==  nameValueObj ? 'border': '' }}"
+		ng-repeat="(key, nameValueObj) in options">
+		<div class="flex-row flex-display-inline">
+			<div>
+				<label class="flex">
+					<input type="checkbox"
+						class="check"
+						ng-model="nameValueObj.isSelected"
+						ng-value="nameValueObj.value"
+						alt="{{nameValueObj.isSelected}}"
+						name="{{nameValueObj.value}}" />
+					<span class="xs-ml-5">{{nameValueObj.name}}</span>
+				</label>
+				<div class="flex-row flex-display-inline">
+					<button class="btn btn-secondary"
+						type="button" ng-click="editOption(key, nameValueObj)">
+						Edit</button>
+					<button class="btn btn-secondary"
+						type="button" ng-click="removeOption(key, nameValueObj)">
+						X</button>
+				</div>
+			</div>
+			<div ng-if="isHtml()"
+				dynamic="html(key, nameValueObj, editObject ==  nameValueObj)">
+			</div>
+		</div>
+		<!-- ng-change="onFileStatusChecked($event.target.checked, nameValueObj)" -->
+	</div>
+
+	<!-- selectedOptions.length -->
+	<div class="num-selected"
+		ng-if="selectedOptions">
+		{{selectedOptions.length}}
+		selected from {{options.length}}
+	</div>
+
+	<!-- edit-properties -->
+	<div ng-if="isAddEditMode">
+		<edit-properties object="editObject"
+			object-properties="editObjectProperties"></edit-properties>
+
+		<button class="btn btn-secondary"
+			type="button" ng-click="done($event)">
+			Done</button>
+	</div>
+
+	<!-- Clear, All, Add -->
+	<div class="flex-row"
+		ng-if="!isAddEditMode">
+		<button class="btn btn-secondary"
+			type="button" ng-click="clearSelection($event)">
+			Clear</button>
+		<button class="btn btn-secondary"
+			type="button" ng-click="selectAll($event)">
+			All</button>
+		<button class="btn btn-secondary"
+			ng-if="isAdd"
+			type="button"
+			ng-click="addNew($event)">
+			Add</button>
+	</div>
+</div>
+</script>
+
+<script type="text/ng-template" id="myCoreElements.html" >
+<!-- myCoreElements -->
+<bs-well type="'sm'">
+	<h4>basic elements:</h4>
+
+	<btn-info is-on="isShowHoverText"
+		ng-init="isShowHoverText = isShowHoverText || true"
+		is-simple="false">
+		<!-- ng-if, is-true, is-false -->
+		<bool-span if="isShowHoverText" is-true="Show" is-false="Hide"></bool-span> Hover Text
+
+	</btn-info>
+</bs-well>
+
+<!-- repeat -->
+<!-- ng-mousedown="mousekeydown($event, mousekeyArgs)"
+	ng-mouseup="mousekeyup($event, mousekeyArgs)"
+	ng-mousemove="mousemove($event, mousekeyArgs)" -->
+<div ng-repeat="(optionIndex, option) in options"
+	ng-mouseover="mouseover($event, optionIndex, option)"
+	ng-mouseleave="mouseleave($event, optionIndex, option)">
+	<!-- spanHtml if param.isMouseOver -->
+	<div ng-if="isShowHoverText && param && param.isMouseOver(optionIndex, option)">
+		<div dynamic-tag="option.spanHtml">
+		</div>
+	</div>
+
+	<!-- tagHtml -->
+	<div dynamic-tag="option.tagHtml">
+	</div>
+
+	<hr />
+</div>
+
+</script>
+
+<script type="text/ng-template" id="myFieldset.html" >
+	<fieldset class="{{ !!myClass ? myClass : '' }}">
+		<legend ng-if="!!legend">{{legend}}</legend>
+		<div class="modal_holder"></div>
+		<hr ng-if="isHr" />
+	</fieldset>			
+</script>
+
+<script type="text/ng-template" id="myInput.html" >
+<!-- ng-if="type != 'select'" -->
+<span  class="{{ isSimple ? '' : 'block row'}}"
+	data-name="{{name}}">
+
+	<div ng-if="!isSimple" class="col-md-4">
+		<lable for="{{name}}">{{lableText}}: </lable>
+	</div>
+	<spam class="{{ isSimple ? '' : 'col-md-8'}}">
+		<input ng-disabled="isDisabled" class="{{ class ? class : ''}}" ng-model="ngModel"
+		ng-mousedown="mousekeydown($event, mousekeyArgs)"
+		ng-mouseup="mousekeyup($event, mousekeyArgs)"
+		type="{{type}}" name="{{name}}" ng-trim="false" >
+		</spam>
+
+</span>
+
+<!--	<select ng-model="ngModel"
+			ng-if="type == 'select'" 
+			class="col-md-8" name="{{name}}" >
+			<option value="2">2</option>
+			<option value="3">3</option>
+		</select>
+
+	ngModel {{ngModel}}
+--></script>
+
+<script type="text/ng-template" id="myModal.html" >
+<!-- Button trigger modal -->
+<button class="btn btn-primary"
+	data-toggle="modal"
+	data-target="#{{modalId}}"
+	tabindex="-1">
+	{{modalBtnText || modalTitle}}
+</button>
+
+<!-- Modal -->
+<div class="modal fade"
+	id="{{modalId}}"
+	role="dialog" aria-labelledby="{{modalId}}"
+	aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" 
+					data-dismiss="modal" tabindex="-1"
+					aria-hidden="true">&times;</button>
+				<h4 class="modal-title">{{modalTitle}}</h4>
+			</div>
+
+			<div class="modal-body">
+				<!-- transclude part -->
+				<div class="modal_holder"></div>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button"
+					class="btn btn-default"
+					tabindex="-1"
+					data-dismiss="modal">Close</button>
+
+				<button type="button"
+					class="btn btn-primary"
+					ng-if="isSave"
+					data-dismiss="modal"
+					ng-click="saveClick()"
+					tabindex="-1">Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+</script>
+
+<script type="text/ng-template" id="myRoute.html" >
+	<button-nav
+		is-fixed="navIsFixed"
+		brand-href="brandHref"
+		brand-text="brandText"
+		home-click="homeClick"
+		arr="fieldsetIfArr">
+			<!--<li class="nav-item">
+				<a class="nav-link" href="#">
+					About</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#">
+					Contact</a>
+			</li>-->
+</button-nav>
+
+<div class="container-fluid">
+		<fieldset-list arr="fieldsetIfArr"></fieldset-list>
+</div></script>
+
+<script type="text/ng-template" id="mySelect.html" >
+<!-- ngModel {{ngModel}} -->
+fix: my select, Remove
+<span class="{{ isSimple ? '' : 'block row' }}" data-name="{{name}}">
+	<span ng-if="!isSimple && (lableText || name)" class="col-lg-6 col-md-4">
+		<lable for="{{name}}">{{ lableText ? lableText : name }}: </lable>
+	</span>
+	<span class="{{ inlineBlock ? 'inline-block' : '' }}
+		 {{ isSimple ? '' : ('col-lg-6 col-md-' + (lableText || name ? '8' : '12'))}}" >
+
+		<!-- {{ngModel}} -->
+
+		<span ng-if="isAdd" >
+			<my-input
+				is-simple="true"
+				 ng-init="addText = addText || ''"
+				type="text" name="add"
+				ng-model="addText"></my-input>
+
+			<btn-info click="Add" click-params="addText"
+			is-simple="true" >addText</btn-info>
+		</span>
+		<!--multiple="multiple"-->
+		<select ng-show="!isAdd" ng-init="ngModel = ngModel ? ngModel : '-1'" ng-model="ngModel" name="{{name}}" class="col-xs-12" >
+<!--			<option ng-if="isRemove" value="__on_remove" disabled="disabled" hidden="hidden" >choose {{ name ?  name : 'option'}}</option>-->
+			<option value="-1" selected="selected" disabled="disabled" hidden="hidden">choose one {{ name ?  name : 'option'}}{{ isRemove ? ' to remove' : ''}}</option>
+			<option ng-if="add" value="__add">add new {{ name ?  name : 'option'}}</option>
+			<option ng-if="remove" value="__remove">{{ isRemove ? 'cancel remove' : 'remove' }} {{ name ?  name : 'option'}}</option>
+			<option ng-if="!isObj" value="{{ option.value ? option.value : option }}"
+				ng-repeat="(optionIndex, option) in options">
+				<span>{{ isRemove ? 'remove' : '' }}{{ option.name
+					? option.name : option }}</span>
+			</option>
+			<option ng-if="isObj"
+				value="{{ optionIndex }}"
+				ng-repeat="(optionIndex, option) in options">
+				<span>{{ isRemove ? 'remove ' : '' }}{{ optionIndex }}</span>
+			</option>
+		</select>
+	</span>
+</span></script>
+
+<script type="text/ng-template" id="numberGui.html" >
+<!-- numberGui.html -->
+<!-- isMouseOver: {{isMouseOver}}
+	is-mouse-over="isMouseOver"
+	-->
+<div class="inline-block"
+	ng-mouseover="mouseover($event)"
+	ng-mouseleave="mouseleave($event)">
+	<!-- radio-group changeParam ng-if=isFullDisplay -->
+	<div ng-if="isFullDisplay">
+		<btn-info is-on="$parent.IsFraction"
+			is-simple="false">1/X</btn-info>
+		<!--	IsFraction: {{IsFraction}}-->
+
+		<!--changeParamOptions: {{changeParamOptions}}-->
+		<!-- ng-change="pointTypeChange" -->
+		<radio-group ng-model="$parent.changeParam"
+			data="$parent.IsFraction ? changeParamFractionOptions : changeParamOptions"></radio-group>
+	</div>
+
+	<!-- innerText -->
+	<div class="text-align-center"
+		ng-if="!!innerText">{{innerText}}</div>
+
+	<!-- numChange('plus' || 'minus', changeParam)
+			input ng-model="ngModel" -->
+	<div>
+		<!-- btn numChange(['minus', changeParam]) -->
+		<btn-info ng-if="isFullDisplay"
+			click="numChange"
+			click-params="['minus', changeParam]"
+			is-simple="true">-</btn-info>
+
+		<!-- ngModel class="number" -->
+		<span ng-if="!isEdit"
+			class="number max-width-50">{{ displayNumber
+			| number}}</span>
+
+		<!-- input ngModel type-class="number"
+	value="{{ $parent.displayNumber }}"
+ -->
+		<input ng-model="$parent.displayNumber"
+			ng-if="isEdit" class="number max-width-50"
+			placeholder="number"
+			ng-keydown="inputKeydown($event)"
+			ng-change="displayNumberChange($parent.displayNumber)"
+			type="text">
+
+		<!-- btn numChange(['plus', changeParam]) -->
+		<btn-info ng-if="isFullDisplay"
+			click="numChange"
+			click-params="['plus', changeParam]"
+			is-simple="true">+</btn-info>
+	</div>
+
+</div>
+</script>
+
+<script type="text/ng-template" id="objectModal.html" >
+<my-modal save="save"
+	save-args="item"
+	modal-btn-text="btnText"
+	modal-title="'title'">
+		<!--obj: {{dataItem}}-->
+		<!-- Structure -->
+		<div col-classes-object="{xs:12}">
+			<!-- item="$parent.item" structure="structure" col-classes-object="{xs:6}"-->
+			<edit-object item="$parent.item" structure="structure" inner-col-classes-object="{xs:6}"></edit-object>
+		</div>
+</my-modal>
+</script>
+
+<script type="text/ng-template" id="radioGroup.html" >
+<!-- radioGroup.html -->
+<!--<radio-group ng-model="ngModel" data="{prop, value} in data">
+	</radio-group>-->
+<!-- data, ngModel, name, preText, afterText, isText, htmlObject{text, html}, htmlFunc(text, singleRadioValue, isSelected) -->
+
+<span ng-if="!!preText">{{preText}}</span>
+
+<label ng-repeat="(text, singleRadioValue) in data"
+	style="margin: 3px 5px;
+	padding: 5px 3px;"
+	class="{{ ngModel == singleRadioValue ? ' border': '' }}">
+
+	<!--	isDataArr:{{isDataArr}} && displayProp: {{displayProp}} && singleRadioValue[displayProp]: {{singleRadioValue[displayProp]}}-->
+	<span ng-if="isText">{{(isDataArr && displayProp && singleRadioValue[displayProp]) ? singleRadioValue[displayProp] : text}}</span>
+	
+	<div ng-if="isHtml()"
+		dynamic="html(text, singleRadioValue, $parent.ngModel == singleRadioValue)"></div>
+
+	<input type="radio" ng-model="$parent.ngModel"
+		ng-show="isShowInput"
+		name="{{name}}" ng-value="singleRadioValue">
+</label>
+<span ng-if="!!afterText">
+	{{afterText}}: </span>
+</script>
+
+<script type="text/ng-template" id="designer.html" >
+<!-- designer edit-properties -->
+<btn-info click="editPropertiesChange"
+	click-params=""
+	is-simple="true">Edit Properties Change</btn-info>
+
+<row ng-if="isEditProperties">
+	<colomn col-classes-object="{xs: 12}">
+		<edit-properties object="propertiesObject"></edit-properties>
+	</colomn>
+</row>
+
+<btn-info click="toolBoxChange"
+	click-params=""
+	is-simple="true">tool-Box Change</btn-info>
+<row>
+	<!-- Canvas -->
+	<designer-canvas my-class="isToolBox? 'col-xs-8' : 'col-xs-12'" 
+		my-html-obj="myHtmlObj" 
+		properties-object="propertiesObject"
+		last-tool="lastTool" ></designer-canvas>
+
+	<!-- ToolBox -->
+	<tool-box ng-if="isToolBox" 
+		my-html-obj="myHtmlObj" 
+		properties-object="propertiesObject"
+		last-tool="lastTool" 
+		class="col-xs-4"></tool-box>
+</row>
+</script>
+
+<script type="text/ng-template" id="designerCanvas.html" >
+
+<!-- Canvas -->
+<span class="{{myClass}}">
+	<h3>Canvas</h3>
+	<btn-info click="editChange"
+		click-params=""
+		is-simple="true">editChange</btn-info>
+
+	<multi-select options="[{name: 'test1', isSelected: true}, {name: 'test2'}]"></multi-select>
+
+	<input type="number"
+		min="1" max="12"
+		col-classes-object="{xs: 12}"
+		ng-model="num"></input>
+	<colomn col-classes-object="{xs: num}">
+		<edit-tag tag="lastTool" ></edit-tag>
+	</colomn>
+	<!--<textarea class="col-xs-12"
+		ng-model="myHtmlObj.placeholder"></textarea>-->
+	<hr />
+	<div class="container-fluid">
+		<div ng-if="!myHtmlObj.isEdit"
+			dynamic="myHtmlObj.html">
+		</div>
+		<!--<div>
+			<elem-placeholder html="{{myHtmlObj.html}}"></elem-placeholder>
+		</div>-->
+		<div ng-if="myHtmlObj.isEdit">
+			<textarea class="col-xs-12"
+				ng-model="myHtmlObj.html"></textarea>
+		</div>
+		
+	</div>
+
+	<!-- ~Canvas -->
+</span>
+</script>
+
+<script type="text/ng-template" id="editTag.html" >
+<!-- tagName -->
+
+<my-select is-simple="true"
+	is-obj="true"
+	ng-model="tag.tagName"
+	ng-init="tag.tagName = tag.tagName? tag.tagName : -1;"
+	options="tags"
+	name="Tag Name"></my-select>
+
+<!-- tagAttributes -->
+<edit-properties object="tag.tagAttributes"></edit-properties>
+</script>
+
+<script type="text/ng-template" id="toolBox.html" >
+<!-- toolBox -->
+<h3>toolBox</h3>
+<span class="container-fluid">
+	<!--	col-object="{xs: 12}"-->
+	<colomn col-classes-object="{xs: 12}">
+		<edit-tag tag="tag" tags="tags"></edit-tag>
+	</colomn>
+
+	<!-- Add Tag
+		click-params="" -->
+	<btn-info click="add" is-simple="true">Add Tag</btn-info>
+</span>
+{{fieldsetArr}}
+<span class="container-fluid">
+<!--	<fieldset-list arr="fieldsetArr"></fieldset-list>-->
+	<my-fieldset legend="obj.title || obj.text"
+		ng-repeat="(key, obj) in fieldsetArr"
+		my-class="container-fluid {{ obj.myClass || obj.tagName }}"
+		ng-if="obj.value">
+		<div>
+			<span ng-click="editTool(key, obj);">Edit</span>
+		</div>
+	<div dynamic-tag="obj.html || html(obj)">
+	</div>
+</my-fieldset>
+
+</span></script>
+
+<script type="text/ng-template" id="bsColBuilder.html" >
+<div class="row">
+	<!-- {xs: num} 
+		col-classes-object="colObject.colObject" -->
+	<div ng-repeat="(index, colObject) in objects">
+
+		<multi-select options="options"
+			selected-options="colObject.selectedOptions"
+			selected-object="colObject.selectedObject"></multi-select>
+
+		<div>{{colObject.selectedOptions}}
+		</div>
+		<div>{{colObject.selectedObject}}
+		</div>
+
+		<input type="number"
+			min="1" max="12"
+			ng-repeat="(size, index) in colObject.selectedObject"
+			col-classes-object="{xs: 12}"
+			ng-model="colObject.selectedObject[size]"></input>
+
+		<show-json data="colObject"></show-json>
+	</div>
+</div>
+</script>
+
+<script type="text/ng-template" id="filesBuilder.html" >
+<div>
+	<div class="flex-align-start">
+		<!-- input fileName 
+		btn-info clickGetFile -->
+		<div>
+			<!-- input fileName -->
+			<input type="text" name="name"
+				value=" " ng-model="fileName" />
+
+			<!-- btn-info clickGetFile -->
+			<btn-info click="clickGetFile"
+				click-params=""
+				is-simple="true">Get File</btn-info>
+
+			<!--Change File Edit Model(isEditFileModel)-->
+			<btn-info is-on="isEditFileModel"
+				is-simple="isEditFileModel">Change File Edit Model</btn-info>
+
+		</div>
+
+		<!-- current File
+			html-func="pointTypeHtmlFunc"
+				ng-change="pointTypeChange" -->
+		<radio-group ng-model="currentFile"
+			pre-text="'Current Files: '"
+			data="currentFiles"></radio-group>
+
+
+	</div>
+
+	<!-- is Edit File Model -->
+	<div ng-if="isEditFileModel">
+		<!--<btf-markdown>#Markdown directive *It works!*</btf-markdown>-->
+		<!-- http://demo.showdownjs.com/ -->
+		<div btf-markdown="currentFile.model">
+		</div>
+
+		<textarea rows="4" cols="50"
+			ng-if="currentFile"
+			ng-model="$parent.currentFile.model"></textarea>
+	</div>
+
+	<!-- is Not Edit File Model -->
+	<!--currentFile.model:
+		{{currentFile.model}}-->
+	<div ng-if="!isEditFileModel">
+		<!--		<div>
+					$parent.currentFile.model:
+					{{$parent.currentFile.model}}
+					</div>
+					<div>
+						$parent.currentFile:
+					{{$parent.currentFile}}
+					</div>
+					<div>
+						currentFile:
+						{{currentFile}}
+					</div>-->
+
+		<div class="border" ng-repeat="(index, obj) in asArray(currentFile.model) track by $index">
+			<div>{{index}}. {{obj}}</div>
+			<div btf-markdown="obj">
+			</div>
+		</div>
+
+	</div>
+
+</div>
+</script>
+
+<script type="text/ng-template" id="jsonDisplayStyle.html" >
+	<style type="text/css">
+		pre
+		{
+			outline: 1px solid #ccc;
+			padding: 5px;
+			margin: 5px;
+		}
+
+		.string
+		{
+			color: brown;
+		}
+
+		.number
+		{
+			color: black;
+		}
+
+		.boolean
+		{
+			color: blue;
+		}
+
+		.null
+		{
+			color: blue;
+		}
+
+		.key
+		{
+			color: red;
+		}
+	</style>
+
+<div dynamic="syntaxHighlight_JSONstringify">
+</div>
+</script>
+
+<script type="text/ng-template" id="jsonEditor.html" >
+<!-- Options Mode if isChangeOptionsMode -->
+<span ng-if="isChangeOptionsMode">
+	Options Mode:
+			<radio-group ng-model="options.mode"
+				data="OptionsMode"></radio-group>
+</span>
+
+<!-- ng-json editor ng-model="data", options -->
+<span ng-jsoneditor="onJsonEditorLoad"
+	ng-model="data"
+	options="options"
+	style="width: 400px;
+	height: 300px;">
+</span>
+
+<!-- isShowJsonBtn -->
+<!-- becuse ng-if need to use $parent.isShowJson -->
+<span ng-if="isShowJsonBtn">
+	<btn-info
+		is-on="$parent.isShowJson"
+		is-simple="false">is Show Json</btn-info>
+
+	<btn-info ng-if="$parent.isShowJson"
+		is-on="$parent.$parent.isJsonPretty"
+		is-simple="false">Json Pretty</btn-info>
+</span>
+<!--isShowJson: {{isShowJson}}-->
+
+<!--<pre ng-if="isShowJson">{{myJson(data)}}</pre>-->
+
+<json-display-style ng-if="isShowJson"
+	data="data" is-json-pretty="$parent.isJsonPretty"></json-display-style>
+</script>
+
+<script type="text/ng-template" id="canvasDrawer.html" >
+<!-- canvasDrawer.html -->
+<!-- 	width="{{canvasInfo.width}}"
+	height="{{canvasInfo.height}}"
+	class="border float"
+	ng-mousedown="mousekeydown($event, mousekeyArgs)"
+	ng-mouseup="mousekeyup($event, mousekeyArgs)"
+	ng-mousemove="mousemove($event, mousekeyArgs)"
+ -->
+<!-- canvas, ngMousekeydown,ngMousekeyup, ngMousemove -->
+<canvas class="{{isBorder ? 'border ' : ''}}float"
+	ng-mousedown="ngMousekeydown($event)"
+	ng-mouseup="ngMousekeyup($event)"
+	ng-mousemove="ngMousemove($event)">
+</canvas>
+<!-- /canvas -->
+
+</script>
+
+<script type="text/ng-template" id="map.html" >
+<div>
+
+	<!-- center group
+	<span class="table margin-auto" >
+		<input type="number"
+			ng-model="partialDisplay"
+			min="1" max="3" >
+	</span> -->
+
+	<!-- center single item -->
+	<span>show: 
+	
+		<radio-group ng-model="partialDisplay"
+			data="PartialDisplayEnum"></radio-group>
+	</span>
+	<!-- basicMap .click-thru-map" -->
+	<basic-map width="width"
+		height="height">
+		<!-- points map -->
+		<div class="clickable-point inline-table"
+			ng-repeat="point in data"
+			ng-if="partialDisplay == 1 || partialDisplay == 2"
+			ng-style="{left: point.x - 11, top: point.y-18}">
+			<div class="clickable-point">
+		<!-- removePoint -->
+			<a ng-click="removePoint(point)">[x]</a>
+			</div>
+			<div class="clickable-point">
+		<!-- isEditChange -->
+			<a ng-click="isEditChange(point, 'isEditPoint')">
+				[{{ point.isEditPoint
+				? 'finish' : 'edit'}}]</a>
+
+		<!-- Not isEditPoint -->
+			<span ng-if="!point.isEditPoint">
+				[{{point.x}}, {{point.y}}]</span>
+			<!--  min="0" max="{{width}}"
+				min="0" max="{{height}}" -->
+
+		<!-- isEditPoint -->
+			<span ng-if="point.isEditPoint">
+				[<input
+					ng-model="point.x"
+					type="number" />,
+				<input ng-model="point.y"
+					type="number" />]
+			</span>
+
+		</div>
+</div>
+
+<!-- lines map -->
+<div class="clickable-point inline-table"
+	ng-repeat="(i, point) in data"
+	ng-if="(partialDisplay == 1 || partialDisplay == 3) && ((point.type == PointTypes.Circle) || (point.type != PointTypes.Circle && i > 0))"
+	style="left: {{avg(point, data[(i == 0 ? i : i - 1)], 'x')-11}}px;
+	top: {{avg(point, data[(i == 0 ? i : i - 1)], 'y')-11}}px;">
+	<a ng-click="isEditChange(point, 'isEditLine')">
+		[{{ point.isEditLine
+		? 'finish' : 'edit'}}]</a>
+	<span ng-if="!point.isEditLine">
+		<span>lineWidth: {{point.lineWidth}}</span>
+	</span>
+	<!-- isEditLine -->
+	<span ng-if="point.isEditLine">
+		<span>
+			<input ng-model="point.lineWidth"
+				type="number" min="5"
+				max="100" />
+
+			<radio-group ng-model="point.type"
+				data="BasicConectionType"></radio-group>
+
+		</span>
+		<span ng-if="point.type == PointTypes.Curve || point.type == PointTypes.Circle">
+			<input ng-model="point.radius"
+				type="number" min="0"
+				max="100" />
+
+		</span>
+	</span>
+</div>
+
+</basic-map>
+</div>
+</script>
+
+<script type="text/ng-template" id="myCanvas.html" >
+<!-- myCanvas.html -->
+<div>
+
+	<!-- canvas width & height -->
+	<!-- heading-text="'change canvas width & height'",
+		fix- ng-click, surrund model with class="panel-body"  -->
+	<bs-panel type="'default'">
+		<div class="panel-heading"
+			ng-click="isWidthHeight = !isWidthHeight">
+			change canvas width
+			& height
+		</div>
+		<div ng-if="isWidthHeight"
+			class="panel-body flex flex-row">
+			<!-- width -->
+			<!-- number-gui -->
+			<number-gui class="inline-block"
+				inner-text="'Canvas Width'"
+				ng-model="canvas.width">
+			</number-gui>
+
+			<!-- height -->
+			<number-gui class="inline-block"
+				inner-text="'Canvas Height'"
+				ng-model="canvas.height">
+			</number-gui>
+
+		</div>
+		<!--<div class="panel-footer">Panel Footer</div>-->
+	</bs-panel>
+
+	<!-- strokeStyle -->
+	<stroke-style
+		ng-model="newDataItem.strokeStyle">
+	</stroke-style>
+
+	<div class="float-right">
+		<!--isMap-->
+		<btn-info is-on="isMap"
+			is-simple="false">Map Change</btn-info>
+
+		<btn-info is-on="isPointConnected"
+			is-simple="false">Single Click(isPointConnected)</btn-info>
+
+		<!-- newDataItem.lineWidth -->
+		<number-gui inner-text="'Line Width'"
+			ng-model="newDataItem.lineWidth"></number-gui>
+
+		<!-- newDataItem.radius 
+			ng-if=pointType == Curve -->
+		<number-gui ng-if="pointType == BasicConectionType.Curve"
+			inner-text="'Radius'"
+			ng-model="newDataItem.radius"></number-gui>
+
+	</div>
+
+	<!-- pointType -->
+	<div class="float-right">
+		<!--pointType: {{pointType}}-->
+		<!-- data, ngModel, isText, htmlObject{text, html}, htmlFunc(text, singleRadioValue, isSelected) -->
+		<radio-group ng-model="pointType"
+			class="float"
+			pre-text="'add: '"
+			html-func="pointTypeHtmlFunc"
+			ng-change="pointTypeChange"
+			data="BasicConectionType"></radio-group>
+	</div>
+
+	<!-- Map -->
+	<div>
+		<map ng-if="isMap" data="selectedDataObject.dataArr"
+			width="canvas.width"
+			height="canvas.height"
+			is-follow-curser="isFollowCurser"
+			update="update" class="fade-element"
+			point-edit-change="pointEditChange">
+		</map>
+	</div>
+
+	<!-- canvas id="canvas" -->
+	<div>
+		<!-- 	mouseKeydown, mouseKeyup, mouseMove -->
+		<canvas-drawer data="dataObjectsArr"
+			canvas-info="canvas"
+			canvas="canvasElem"
+			mouse-keydown="mouseKeydown"
+			mouse-keyup="mouseKeyup"
+			mouse-move="mouseMove">
+		</canvas-drawer>
+
+		<!--<canvas id="canvas"
+			style="border: 1px gray solid;
+			float: left"
+			width="canvas.width"
+			height="canvas.height"
+			ng-mousedown="mousekeydown($event, mousekeyArgs)"
+			ng-mouseup="mousekeyup($event, mousekeyArgs)"
+			ng-mousemove="mousemove($event, mousekeyArgs)">
+		</canvas>-->
+
+	</div>
+	<!-- /canvas -->
+
+	<div>
+		<!-- newDataItem.lineWidth
+			newDataItem.radius ng-if=pointType == Curve -->
+		<!-- btn isMap Change & isPointConnected -->
+
+		<div class="float-right">
+			<btn-info click="addNewObject"
+				click-params=""
+				is-simple="true">Add New Object</btn-info>
+
+			<!-- options="[{name: 'test1', isSelected: true, value: {testProp: 'testProp'}}, {name: 'test2'}]" -->
+			<!-- add-object="{ name: 'test1', isSelected: true, dataArr: [] }" -->
+			<!-- add-click="addClick" -->
+			<multi-select
+				edit-object="selectedDataObject"
+				html-func="objectsArrayHtmlFunc"
+				is-add="false"
+				edit-click="editObjectClick"
+				is-always-show="true"
+				options="dataObjectsArr"
+				selected-options="colObject.selectedOptions"
+				selected-object="colObject.selectedObject"></multi-select>
+		</div>
+
+		<div style="clear: both;">
+		</div>
+		<!-- min-canvas-drawer Example -->
+		<canvas-drawer data="selectedDataObject.dataArr"
+			canvas-info="{width:50,height:50}"></canvas-drawer>
+
+	</div>
+
+	<!-- onLoad: '=?',
+			isChangeOptionsMode: '=?',
+			isShowJson: '=?',
+			isJsonPretty: '=?',
+			isShowJsonBtn: '=?', -->
+
+	<json-editor
+		data="selectedDataObject.dataArr"
+		is-change-options-mode="true"
+		is-show-json-btn="true"></json-editor>
+
+	<!-- my-data-table -->
+	<!--	<div>
+		newDataItem: {{newDataItem}}
+		Points:
+		<my-data-table data="selectedDataObject.dataArr"
+			structure="structure"
+			edit-structure="editStructure"
+			add-structure="addStructure"
+			before-edit="beforeEdit"
+			change="change"
+			new-data-item="newDataItem"
+			add="add" edit="edit"
+			remove="remove"
+			is-add-to-data="isAddToData"
+			is-remove-from-data="isRemoveFromData"></my-data-table>
+
+	</div>-->
+</div>
+
+</script>
+
+<script type="text/ng-template" id="strokeStyle.html" >
+<!-- strokeStyle.html -->
+<div class="inline-block">
+	<div ng-click="isStrokeStyle = !isStrokeStyle"
+		ng-init="isStrokeStyle = true">Stroke Style: </div>
+	<!--<div>
+		<input type="type" name="name"
+			value="" ng-model="ngModel.name" />
+
+		<select ng-model="ngModel.code">
+			<option ng-repeat="(index, obj) in RGB_hexArray"
+				value="{{obj.code}}">
+				{{obj.name}}</option>
+		</select>
+	</div>-->
+
+	<!--RGB_hexArray: name, code-->
+	<div ng-if="isStrokeStyle"
+		class="scroll max-height-260">
+		<!-- html-func="pointTypeHtmlFunc"
+			ng-change="pointTypeChange" -->
+		<radio-group ng-model="$parent.ngModel"
+			is-data-arr="true"
+			display-prop="'name'"
+			is-text="isColorText"
+			html-func="colorHtmlFunc"
+			pre-text="'color: '"
+			data="RGB_hexArray"></radio-group>
+
+	</div>
+</div>
+</script>
+
+<script type="text/ng-template" id="printerManager.html" >
+<!-- How to play only a part from a video with VLC -->
+<wall>
+	<div class="post-text" itemprop="text">
+<h3>How to play only a part from a video with VLC</h3>
+<p>This worked with mine (Windows 7, VLC 1.1.11):</p>
+<pre><code>start "C:\Program Files\VLC\vlc.exe" "D:\Movies\The Italian Job.avi" --start-time 12 --stop-time 20
+</code></pre>
+<p>Just replace the file paths &amp; seconds accordingly. The number <code>12</code> means the movie will start playing at the 12th second; the <code>20</code> means it'll stop at the 20th second.</p>
+    </div>
+</wall>
+
+<!-- select paragraph -->
+<span class="row">paragraphsOptions:
+	{{paragraphsOptions}}
+	<span class="col-xs-12 col-sm-6">
+		<my-select is-simple="true"
+			ng-model="paragraphName"
+			ng-init="paragraphName = -1"
+			options="paragraphsOptions"
+			name="paragraph">
+		my-select not working</my-select>
+
+	</span>
+
+</span>
+
+<row-arr paragraph="paragraphs[paragraphName]"
+	edit-mode="editMode"
+	wall-type="'sm'">
+rowArr not working</row-arr>
+</script>
+
+<script type="text/ng-template" id="rowArr.html" >
+<!-- edit property -->
+<span class="row">
+	<edit-properties object="paragraph.props"></edit-properties>
+</span>
+
+<!-- New Row, Edit Mode -->
+<div class="row">
+	<!-- row - textarea - newRow.text -->
+	<row>
+		<textarea class="col-xs-12"
+			ng-model="newRow.text"></textarea>
+	</row>
+
+	<!-- btns - action Type - span.row -->
+	<row>
+		<!-- span.sm-6 -->
+		<colomn col-classes-object="{xs: 12, sm: 6}" class="col-xs-12 col-sm-6">
+			<!-- btn Add Rows -->
+
+				<btn-info click="newRow.click"
+					click-params="newRow.text"
+					is-simple="true">Add Rows</btn-info>
+
+			<!-- btn Clear -->
+				<btn-info click="paragraph.Clear"
+					is-simple="true">Clear</btn-info>
+
+			<!-- btn Edit Mode -->
+				<btn-info is-on="editMode">Edit Mode</btn-info>
+
+		</colomn>
+
+
+		<!-- action Type - if=editMode - span.sm-6 -->
+		<colomn ng-if="editMode" col-classes-object="{xs: 12, sm: 6}">
+			<my-select add="false" remove="false" 
+				is-simple="true" ng-model="paragraph.editActionType"
+				ng-init="paragraph.editActionType = paragraph.editActionType || -1"
+				options="actionTypeArray" name="action Type">
+				my-select not working</my-select>
+
+		</colomn>
+		<!-- ~span[ng-if="editMode"] -->
+
+	</row>
+	<!-- ~span.row -->
+
+</div>
+
+<!-- Wall display -->
+<wall class="scroll">
+
+<!-- repeat(row_index, row_obj in paragraph.rowArr)  -->
+	<div class="row {{ editMode ? 'border':'' }}"
+	ng-mouseover="row.mouseOver(row_obj);" ng-mouseleave="row.mouseLeave(row_obj);"
+	ng-repeat="(row_index, row_obj) in paragraph.rowArr" >
+
+			<!-- row - editMode -->
+			<span class="inline-block" ng-if="editMode">
+				
+				<!-- Move Row up -->
+				<div>
+					
+					<icon type="arrow-circle-up"
+					ng-if="isAction('Move_Row')"
+					ng-click="row.move(row_index, false);" ></icon>
+
+					<!--<i class="fa fa-arrow-circle-up" 
+					ng-if="isAction('Move_Row')"
+					ng-click="row.move(row_index, false);" ></i>-->
+				</div>
+				
+				<!-- bullseye -->
+				<i ng-if="isAction('Clone_Row Remove_Row', true)"  class="fa fa-bullseye" ng-click="row.do(row_index, row_obj);" ></i>
+
+				<!-- Move Row down -->
+				<div class="" ng-if="isAction('Move_Row')">
+					<i class="fa fa-arrow-circle-down" ng-click="row.move(row_index, true);" ></i>
+				</div>
+				
+			</span>
+
+
+			<!-- repeat(span_index, span_obj in row_obj.spanArr)  -->
+			<span 
+				ng-mouseover="span.mouseOver(span_obj);" ng-mouseleave="span.mouseLeave(span_obj);"
+				class="inline-block {{ editMode ? 'border':'' }}"
+				ng-if="editMode || (!editMode && span_obj.text && span_obj.text.length > 0)"
+				ng-repeat="(span_index, span_obj) in row_obj.spanArr" >
+
+				<!-- Display Mode -->
+				<span ng-if="!editMode">
+					<!-- display span object is Simple -->
+					<span ng-if="!span_obj.isProp" >
+						<span class="white-space-on" >{{span_obj.text}}</span>
+					</span>
+					<!-- display span object is Prop -->
+					<span ng-if="span_obj.isProp" >
+						<span class="white-space-on" >{{paragraph.getPropValue(span_obj.text)}}</span>
+					</span>
+				</span>
+
+				<!-- Edit Mode -->
+				<span ng-if="editMode">
+						<!-- aside aside-left buttons -->
+						<span class="aside aside-left" >
+
+							<!-- Move Span Left -->							
+							<i class="fa fa-arrow-circle-left" 
+							ng-click="span.move(span_index, row_obj, false);" 
+							ng-if="isAction('Move_Span')"></i>
+
+							<!-- Do - this -->							
+							<i class="fa fa-hand-o-right" 
+							ng-click="span.do( { index: row_index, value: row_obj },{ index: span_index, value: span_obj } );"
+							ng-if="isAction('Clone_Span Remove_Span Change_Span_Type', true)" ></i>
+
+						</span>
+
+					<!-- main Edit -->
+					<span>
+						<!-- Edit- Simple -->
+						<span ng-if="!span_obj.isProp">
+							<my-input
+								is-simple="true"
+								mousekeyup="mousekeyup"
+								mousekey-args="{spanObj: span_obj, spanIndex: span_index, rowObj: row_obj}"
+								ng-model="span_obj.text"></my-input>
+						</span>
+
+						<!-- Edit- isProp -->
+						<span ng-if="span_obj.isProp">
+							<my-select is-simple="true" ng-init="span_obj.text = span_obj.text ? span_obj.text : '-1'" 
+							ng-model="span_obj.text" options="propsOptions"
+								 inline-block="true" class="height-25 align-sub-padding-0"
+								name="property" >my-select not working</my-select>
+
+						</span>
+					</span>
+
+						<!-- aside aside-right -->
+						<span class="aside aside-right" >
+							<!-- Move Span Right -->
+							<i class="fa fa-arrow-circle-right" 
+							ng-click="span.move(span_index, row_obj, true);" 
+							ng-if="isAction('Move_Span')"></i>
+						</span>
+
+				</span>
+				<!-- ~Edit Mode -->
+
+			</span>
+			<!-- ~repeat(span_index, span_obj in row_obj.spanArr)  -->
+
+
+
+		</div>
+<!-- ~repeat(row_index, row_obj in paragraph.rowArr)  -->
+</wall>
+<!-- ~Wall display -->
+</script>
+
+<script type="text/ng-template" id="storage.html" >
+<!-- container-fluid -->
+<div class="container-fluid">
+
+	<!-- input -->
+	<div class="row">
+		<input class="col-xs-12"
+		type="text" ng-model="input" name="input" value="" />
+	</div>
+
+	<!-- textarea -->
+	<div class="row">
+		<div class="col-xs-12">
+			<textarea  class="form-control"  ng-model="textarea" name="textarea" rows="10"></textarea>
+		</div>
+	</div>
+
+	<!-- button-nav -->
+	<button-nav
+		is-fixed="false"
+		arr="[{ ngIf_AttrName: 'isLocalStorage', text: 'Local Storage'},
+				{ ngIf_AttrName: 'isSessionStorage', text: 'Session Storage'}]" >
+	</button-nav>
+
+	<!-- storage manager row -->
+	<div class="row">
+		<div ng-if="isLocalStorage" class="col-xs-12 col-lg-6">
+			$localStorage:
+			<storage-manager storage-object="$localStorage"></storage-manager>
+		</div>
+
+		<div ng-if="isSessionStorage" class="col-xs-12 col-lg-6">
+			$sessionStorage:
+			<storage-manager storage-object="$sessionStorage"></storage-manager>
+		</div>
+
+		<!-- ~storage manager row -->
+	</div>
+
+	<!-- ~container-fluid -->
+</div></script>
+
+<script type="text/ng-template" id="storageManager.html" >
+<!--
+	storageObject:
+	selectedKey, name, lableText,
+	getOptions(), save(), load()
+				-->
+
+<div class="row">
+	<!-- my-select -->
+	<div class="col-md-9">
+		<my-select ng-model="storageObject.selectedKey" options="storageObject.getOptions()"
+		name="{{storageObject.name}}" lable-text="{{storageObject.lableText}}">my-select not working</my-select>
+		<!--<div>
+						storageObject.selectedKey: {{storageObject.selectedKey}}
+					</div>-->
+	</div>
+	<div class="col-md-3">
+		<div class="row">
+			<div class="col-xs-4">
+				<button class="btn-success" ng-click="storageObject.save()">save</button>
+			</div>
+			<div class="col-xs-4">
+				<button class="btn-success" ng-click="storageObject.load()">load</button>
+			</div>
+			<div class="col-xs-4">
+				<button class="btn-success" ng-click="storageObject.remove()">remove</button>
+			</div>
+		</div>
+	</div>
+</div>
+</script>
+
+</html>
